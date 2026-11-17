@@ -18,3 +18,4 @@ WHERE InvoiceNo IS NULL
 
 /* Start data cleaning and identifying issues etc
 */
+
