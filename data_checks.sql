@@ -1,0 +1,132 @@
+--- Check data quality and understand the data 
+
+SELECT * FROM "Online Retail"
+LIMIT 10;
+/*
+InvoiceNo
+StockCode
+Description
+Quantity
+InvoiceDate
+UnitPrice
+customerID
+Country
+*/
+
+/* Start data cleaning and identifying issues etc
+*/
+
+--- 1) InvoiceNo
+
+SELECT InvoiceNo
+FROM "Online Retail"
+WHERE TRIM(InvoiceNo) != InvoiceNo
+--- no whitespace issues
+SELECT InvoiceNo
+FROM "Online Retail"
+WHERE InvoiceNo IS NULL
+--- no NULL values
+
+SELECT
+    COUNT(*)
+FROM "Online Retail"
+WHERE CustomerID IS NULL
+AND InvoiceNo IS NOT NULL
+--- 135080 rows where invoice data but no customer data. same as missing customer data.
+--- therefore it is likely these rows need removing
+
+--- 2) StockCode
+SELECT 
+    Description,
+    COUNT(DISTINCT StockCode)
+FROM "Online Retail"
+GROUP BY Description
+HAVING COUNT(DISTINCT StockCode) > 1;
+--- Multiple descriptions have the same stock code- different countries may have same items
+--- there are also significant nulls
+
+
+--- 3) Description
+SELECT 
+    Description
+FROM "Online Retail"
+WHERE Description != TRIM(Description)
+--- a lot, think the test is wrong
+SELECT 
+    Description
+FROM "Online Retail"
+WHERE Description IS NULL
+--- 1454 null descriptions
+
+--- 4) Quantity
+SELECT 
+    MIN(Quantity),
+    MAX(Quantity)
+From "Online Retail"
+--- min: -80995
+--- max: 80995
+--- odd large numbers and negatives need investigating
+SELECT 
+    Quantity
+From "Online Retail"
+WHERE Quantity IS NULL
+--- no NULLs
+SELECT 
+    Quantity
+FROM "Online Retail"
+WHERE Quantity < 0
+--- 10624 returned negative values
+SELECT 
+    *
+FROM "Online Retail"
+WHERE Quantity < 0
+LIMIT 5;
+
+
+--- 5) InvoiceDate
+SELECT 
+    MIN(InvoiceDate),
+    MAX(InvoiceDate)
+From "Online Retail"
+--- min: 2010-12-01 08:26:00
+--- max: 2011-12-09 12:50:00
+SELECT 
+    InvoiceDate
+From "Online Retail"
+WHERE InvoiceDate IS NULL
+
+--- 6) UnitPrice
+SELECT 
+    MIN(UnitPrice),
+    MAX(UnitPrice)
+From "Online Retail"
+--- min: -11062.06
+--- max: 38970.00
+--- min is negative and problematic but max is fine
+--- some 0 unit prices, items either can't be sold or shouldn't be part of this
+SELECT 
+    UnitPrice
+From "Online Retail"
+WHERE UnitPrice IS NULL
+
+--- 7) CustomerID
+SELECT 
+    COUNT(*)
+FROM "Online Retail"
+WHERE CustomerID IS NULL
+--- 135080 null customer IDs
+
+--- Further checks
+SELECT 
+    *
+FROM "Online Retail"
+LIMIT 5
+--- May want to remove characters from Invoice Number just to do operations
+
+
+--- 8) Country
+SELECT 
+    DISTINCT(Country)
+FROM "Online Retail"
+--- 38 unique countries
+--- 1 country as "unspecified"

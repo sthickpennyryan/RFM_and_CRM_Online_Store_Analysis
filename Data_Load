@@ -1,3 +1,6 @@
+--- this is irrelevant and can be deleted
+
+
 CREATE TABLE IF NOT EXISTS sales_data (
     InvoiceNo INT,
     StockCode TEXT,
