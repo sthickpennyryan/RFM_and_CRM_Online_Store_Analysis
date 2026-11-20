@@ -80,7 +80,7 @@ SELECT
     *
 FROM "Online Retail"
 WHERE Quantity < 0
-LIMIT 5;
+LIMIT 20;
 
 
 --- 5) InvoiceDate
@@ -102,8 +102,12 @@ SELECT
 From "Online Retail"
 --- min: -11062.06
 --- max: 38970.00
+
+/* - Initial thoughts requiring further checks
 --- min is negative and problematic but max is fine
 --- some 0 unit prices, items either can't be sold or shouldn't be part of this
+*/
+
 SELECT 
     UnitPrice
 From "Online Retail"
@@ -116,13 +120,6 @@ FROM "Online Retail"
 WHERE CustomerID IS NULL
 --- 135080 null customer IDs
 
---- Further checks
-SELECT 
-    *
-FROM "Online Retail"
-LIMIT 5
---- May want to remove characters from Invoice Number just to do operations
-
 
 --- 8) Country
 SELECT 
@@ -130,3 +127,5 @@ SELECT
 FROM "Online Retail"
 --- 38 unique countries
 --- 1 country as "unspecified"
+
+SELECT 
