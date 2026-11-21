@@ -2,19 +2,6 @@
 
 SELECT * FROM "Online Retail"
 LIMIT 10;
-/*
-InvoiceNo
-StockCode
-Description
-Quantity
-InvoiceDate
-UnitPrice
-customerID
-Country
-*/
-
-/* Start data cleaning and identifying issues etc
-*/
 
 --- 1) InvoiceNo
 
@@ -66,6 +53,7 @@ From "Online Retail"
 --- min: -80995
 --- max: 80995
 --- odd large numbers and negatives need investigating
+
 SELECT 
     Quantity
 From "Online Retail"
@@ -128,4 +116,3 @@ FROM "Online Retail"
 --- 38 unique countries
 --- 1 country as "unspecified"
 
-SELECT 
