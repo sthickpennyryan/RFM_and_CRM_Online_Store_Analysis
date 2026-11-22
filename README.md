@@ -44,20 +44,140 @@ Github
 Questions:
 1.	What is our total revenue and how does it change monthly?
 2.	Who are our top 10 highest-value customers?
-
+```sql
+SELECT * FROM analysis_snapshot
+WHERE customer_type = 'High Value Customers'
+ORDER BY rfm_score DESC, monetary DESC
+LIMIT 10;
+```
 
 3.	What proportion of revenue comes from repeat customers?
+93.08% of revenue comes from repeat customers
+``` sql 
+SELECT 
+    ROUND (
+        100.0 * SUM(Monetary) FILTER(WHERE frequency >= 2) / SUM(Monetary), 2
+    )
+FROM analysis_snapshot
+```
+
 4.	What percentage of customers have only purchased once?
+34.67% have only purchased once 
+- Meaning that 93.08 of revenue comes from 65.33% of customers (taking into consideration the above)
+``` sql
+SELECT
+    ROUND(
+        100.0 * COUNT(DISTINCT CustomerID) FILTER(WHERE frequency = 1) / COUNT(DISTINCT CustomerID), 2
+    )
+FROM analysis_snapshot
+```
 5.	Which RFM segments generate the most revenue?
 6.	How many high-value customers are at risk?
 7.	What is our monthly customer retention rate?
 8.	Which acquisition cohorts retain the best?
 9.	Which products generate the most revenue?
+Top 5 products by revenue:
+- Paper Craft, Little Birdie,
+- Regency Cakestand 3 Tier,
+- White Hanging Heart T-Light Holder
+- Jumbo Bag Red Retrospot
+- Medium Ceramic Top Storage Jar
+```sql
+SELECT
+    Description,
+    SUM(UnitPrice * Quantity) revenue
+FROM purchases
+GROUP BY Description
+ORDER BY revenue DESC
+LIMIT 5;
+```
 10.	How much revenue is lost through cancellations and returns?
-
-## Cohort analysis
-
+£611,342.09 of potential revenue lost in cancellations and returns
+```sql
+SELECT 
+    SUM(Quantity * unitprice)
+FROM cancelled_orders
+```
 ## RFM segmentation
+This assigns a score of 1-5 for Recency, Frequency, and Monetary, to each customerID. For example, a low recency score means that compared to other customers, that customer has not made purchases close to the analysis date of '10.12.2011'. 
+The scores relate to percentile brackets as follows:
+- 1: 0-20% (bottom bracket)
+- 2: 20-40%
+- 3: 40-60%
+- 4: 60-80%
+- 5: 80-100% (top bracket)
+```sql
+WITH RFM AS (
+    SELECT
+        CustomerID,
+        DATE '2011-12-10' - MAX(PurchaseDate) Recency,
+        COUNT(DISTINCT InvoiceNo) Frequency,
+        SUM(Quantity * unitprice) Monetary
+    FROM purchases
+    GROUP BY CustomerID
+),
+RFM_scores AS(
+    SELECT 
+        *,
+        NTILE(5) OVER (ORDER BY Recency DESC) AS R_score,
+        NTILE(5) OVER (ORDER BY Frequency ASC) AS F_score,
+        NTILE(5) OVER (ORDER BY Monetary ASC) AS M_score
+FROM RFM
+)
+SELECT 
+*,
+CONCAT(R_score, F_score, M_score) RFM_score
+FROM RFM_scores
+```
+## Cohort analysis
+The below code assigns categories to customers based upon their Recency, Frequency, and Monetary scores. This enables us to identify high value customers, customers who we risk losing, those who have already gone inactive, as well as those who are loyal customers, customers who are on the way to become loyal customers, and our biggest spenders (most valuable customers). The purpose of this classification is:
+- Improve customer retention by identifying those at risk and creating strategies to achieve this
+- Retain current customers, especially high-value customers/big spenders
+- Identify the proportion of customers we retain
+- Identify customers who we have lost/have become inactive and identify their revenue stream to understand whether they are likely to make further purchases in the future and identify possible strategies to accomplish this. At minimum, a reminder email and potential discount and analyse how many returned, their purchases and whether any were retained post-strategy. 
+``` sql
+CREATE OR REPLACE VIEW customer_snapshot AS
+
+
+WITH RFM AS (
+    SELECT
+        CustomerID,
+        DATE '2011-12-10' AS analysis_date,   
+        DATE '2011-12-10' - MAX(PurchaseDate) Recency,
+        COUNT(DISTINCT InvoiceNo) Frequency,
+        SUM(Quantity * unitprice) Monetary
+    FROM purchases
+    GROUP BY CustomerID
+),
+RFM_scores AS(
+    SELECT 
+        *,
+        NTILE(5) OVER (ORDER BY Recency DESC) AS R_score,
+        NTILE(5) OVER (ORDER BY Frequency ASC) AS F_score,
+        NTILE(5) OVER (ORDER BY Monetary ASC) AS M_score
+FROM RFM
+),
+CRM AS (
+    SELECT
+        *,
+        CONCAT(R_Score, F_Score, M_Score) AS RFM_Score,
+        CASE
+            WHEN R_Score >= 4 AND F_Score >= 4 AND M_Score >= 4 THEN 'High Value Customers'
+            WHEN R_Score <= 2 AND F_Score >= 4 AND M_Score >= 4 THEN 'Customers to try retain'
+            WHEN R_Score <= 2 AND F_Score <= 3 THEN 'At Risk of Losing'
+            WHEN R_Score <= 2 AND F_Score <= 2 AND M_Score <= 2 THEN 'Inactive'
+            WHEN R_Score >= 3 AND F_Score >= 4 THEN 'Loyal Customers'
+            WHEN R_Score >= 4 AND F_Score BETWEEN 2 AND 3 THEN 'Potentially Loyal Customers'
+            WHEN R_Score = 5 AND F_Score = 1 THEN 'New Customers'
+            WHEN M_Score = 5 AND R_Score >= 3 THEN 'Big Spenders'
+        ELSE 'Other Customers'
+    END AS Customer_type
+FROM RFM_scores
+)
+SELECT 
+*
+FROM CRM;
+```
 
 ## Customer Lifetime Value (CLV)
 

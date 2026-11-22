@@ -21,25 +21,31 @@ WHERE customer_type = 'High Value Customers'
 ORDER BY rfm_score DESC, monetary DESC
 LIMIT 10;
 --- 3.	What proportion of revenue comes from repeat customers?
-
-WITH revenue_ratio AS(
-SELECT 
+/* original query 
+WITH repeat_proportion AS (
+SELECT
+    SUM(Monetary) total_revenue,
 (SELECT
-    SUM(Monetary)
+    SUM(Monetary) repeat_revenue
 FROM analysis_snapshot
-WHERE frequency >= 2) repeat_revenue,
-SUM(Monetary) one_time_revenue
+WHERE frequency >= 2)
 FROM analysis_snapshot
-WHERE frequency = 1
 )
+SELECT
+    ROUND (
+        100.0 * (repeat_revenue / total_revenue), 2) repeat_revenue_proportion
+FROM repeat_proportion --- 93.08% 
+*/ 
+
+--- cleaned query
 SELECT 
-    ROUND(
-        100 * one_time_revenue / repeat_revenue, 2
-     ) AS percentage_one_time_revenue
-FROM revenue_ratio
---- 7.43% of revenue
+    ROUND (
+        100.0 * SUM(Monetary) FILTER(WHERE frequency >= 2) / SUM(Monetary), 2
+    )
+FROM analysis_snapshot
 
 --- 4.	What percentage of customers have only purchased once?
+/* original
 WITH one_time AS (
 SELECT 
     (SELECT COUNT(DISTINCT CustomerID) FROM analysis_snapshot) AS total_customers,
@@ -53,6 +59,17 @@ SELECT
         100 * one_time_customers / NULLIF(total_customers, 0), 2)  AS percentage_one_time_orders
 FROM one_time
 --- 34% 
+*/
+--- cleaned code below
+SELECT
+    ROUND(
+        100.0 * COUNT(DISTINCT CustomerID) FILTER(WHERE frequency = 1) / COUNT(DISTINCT CustomerID), 2
+    )
+FROM analysis_snapshot
+--- 34.67% have only purchased once
+
+
+
 
 --- 5.	Which RFM segments generate the most revenue?
 SELECT 
