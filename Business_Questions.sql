@@ -12,7 +12,19 @@ Questions:
 10.	How much revenue is lost through cancellations and returns?
 */
 
+SELECT * FROM "Online Retail"
+LIMIT 5;
 
+SELECT 
+    SUM(Quantity * unitprice) / COUNT(InvoiceNo)
+FROM purchases
+--- average purchase price
+
+SELECT 
+    CustomerID,
+    COUNT(InvoiceNo)
+FROM "Online Retail"
+GROUP BY CustomerID
 
 --- 1.	What is our total revenue and how does it change monthly?
 --- 2.	Who are our top 10 highest-value customers?
