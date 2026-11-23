@@ -43,6 +43,7 @@ Github
 
 Questions:
 1.	What is our total revenue and how does it change monthly?
+
 2.	Who are our top 10 highest-value customers?
 ```sql
 SELECT * FROM analysis_snapshot
