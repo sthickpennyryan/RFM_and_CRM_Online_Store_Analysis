@@ -7,7 +7,9 @@ We have to perform cohort and RFM analysis to understand the value derived from 
 
 
 NEEDS EDITTING ###Dataset Description
-This is a transnational data set which contains all the transactions that occurred between 01/12/2010 and 09/12/2011 for a UK-based and registered non-store online retail. The company mainly sells unique and all-occasion gifts.
+This is a transactional data set which contains all the transactions that occurred between 01/12/2010 and 09/12/2011 for a UK-based and registered non-store online retail. The company mainly sells unique and all-occasion gifts.
+
+## Report and Recommendations
 
 ## Dataset
 https://archive.ics.uci.edu/dataset/502/online+retail+ii?
@@ -31,19 +33,20 @@ https://archive.ics.uci.edu/dataset/502/online+retail+ii?
 ### Assumptions & Limitations:
 - NTILE(5) was used to split RFM scores into 5 equal groups with 1 being the bottom 20% of customers and 5 being the top 20%. However, this does not guarentee that a certain scores automatically meets a threshold or industry standard/target. It simply reflects the relative percentile of that customer within this (set as bold) dataset
 - Whilst we can calculate the revenue that each customer generates, we lack data on the costs of the business. As such, we cannot determine profit or identify the most profitable customers or customer profile
-- Country proportion - limited for many countries bar the UK --- assumptions/analysis limited
+- Country proportion - limited for many countries bar the UK meaning the sample for these companies is likely too small for proper analysis and as a result analysis would likely be assumptions 
+- Due to lacking operational costs or profit, I am unable to determine how much revenue is turned into profit for the company
+- Country demographic does not split into counties or City's so cannot ascertain whether a certain area has a higher than normal revenue
 
 ### Tools Used:
-PostGres (SQL) 
-Power BI 
-VSCode
-Github
+- PostGres (SQL) 
+- Power BI 
+- VSCode
+- Github
 
 ## Business Questions
-
 Questions:
 1.	What is our total revenue and how does it change monthly?
-
+![My Image](Assets/Monthly%20Revenue.png)
 2.	Who are our top 10 highest-value customers?
 ```sql
 SELECT * FROM analysis_snapshot
@@ -51,7 +54,6 @@ WHERE customer_type = 'High Value Customers'
 ORDER BY rfm_score DESC, monetary DESC
 LIMIT 10;
 ```
-
 3.	What proportion of revenue comes from repeat customers?
 93.08% of revenue comes from repeat customers
 ``` sql 
@@ -61,10 +63,9 @@ SELECT
     )
 FROM analysis_snapshot
 ```
-
 4.	What percentage of customers have only purchased once?
-34.67% have only purchased once 
-- Meaning that 93.08 of revenue comes from 65.33% of customers (taking into consideration the above)
+
+34.67% have only purchased once. Meaning that 93.08 of revenue comes from 65.33% of customers (taking into consideration the above)
 ``` sql
 SELECT
     ROUND(
@@ -73,16 +74,19 @@ SELECT
 FROM analysis_snapshot
 ```
 5.	Which RFM segments generate the most revenue?
+
+
 6.	How many high-value customers are at risk?
+
+
+
 7.	What is our monthly customer retention rate?
+
+
 8.	Which acquisition cohorts retain the best?
+
+
 9.	Which products generate the most revenue?
-Top 5 products by revenue:
-- Paper Craft, Little Birdie,
-- Regency Cakestand 3 Tier,
-- White Hanging Heart T-Light Holder
-- Jumbo Bag Red Retrospot
-- Medium Ceramic Top Storage Jar
 ```sql
 SELECT
     Description,
@@ -90,8 +94,22 @@ SELECT
 FROM purchases
 GROUP BY Description
 ORDER BY revenue DESC
-LIMIT 5;
+LIMIT 10;
 ```
+Top 10 products by revenue:
+- Paper Craft, Little Birdie
+- Regency Cakestand 3 Tier
+- White Hanging Heart T-Light Holder
+- Jumbo Bag Red Retrospot
+- Medium Ceramic Top Storage Jar
+- Postage
+- Party Bunting
+- Assocrted Colour Bird Ornament
+- Manual
+- Rabbit Night Light
+
+![My Image](Assets/Top%2010%20Products%20by%20Revenue.png)
+
 10.	How much revenue is lost through cancellations and returns?
 £611,342.09 of potential revenue lost in cancellations and returns
 ```sql
@@ -180,6 +198,5 @@ SELECT
 FROM CRM;
 ```
 
-## Customer Lifetime Value (CLV)
 
 
