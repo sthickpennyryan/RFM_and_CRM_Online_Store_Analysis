@@ -3,13 +3,15 @@ The online retail business wants to understand customers purchasing behaviour, i
 
 Therefore, the business needs a data-driven approach to analyse historical sales transactions, segment customers based on purchasing behaviour, identify sales trends, and evaluate product performance. The insights generated will help the business focus on areas to maintain as well as areas that need improvement and develop targeted marketing campaigns, improve customer retention, and make informed decisions to increase revenue.
 
-We have to perform cohort and RFM analysis to understand the value derived from different customer segments. Further, we will divide customers in different clusters based on the analysis by using K-means algorithm.
-
-
-NEEDS EDITTING ###Dataset Description
-This is a transactional data set which contains all the transactions that occurred between 01/12/2010 and 09/12/2011 for a UK-based and registered non-store online retail. The company mainly sells unique and all-occasion gifts.
+### Dataset Description
+This dataset contains transactional data (specific columns below) for the period  between 01/12/2010 and 09/12/2011. The company mainly sells unique and all-occasion gifts and is UK based but does do sales outside of the UK.
 
 ## Report and Recommendations
+Autumn makes up the highest revenue for the year and highlights increasing spending habits just before December and Christmas. As there is an uptick in purchases in these months, capitalising on increased spending habits is promising and there are a few ways:
+- Currently, at risk historic high-value customers bring in comparible revenue to our loyal customers. As this is a considerable amount of revenue that is not being capitalised on, a targetted promotion or loyality scheme is recommended to bring them out of the 'at risk' category and into the revenue stream
+- Furthermore, other 'at risk' categories including those that need attention and are low activity, combined make up revenue of more than our loyal customers. Therefore, customer specific messaging and deals to entice customers back to the revenue pool with follow-up messaging to try convert one time customers into repeat customers as they are a majority of the revenue
+
+
 
 ## Dataset
 https://archive.ics.uci.edu/dataset/502/online+retail+ii?
@@ -36,6 +38,11 @@ https://archive.ics.uci.edu/dataset/502/online+retail+ii?
 - Country proportion - limited for many countries bar the UK meaning the sample for these companies is likely too small for proper analysis and as a result analysis would likely be assumptions 
 - Due to lacking operational costs or profit, I am unable to determine how much revenue is turned into profit for the company
 - Country demographic does not split into counties or City's so cannot ascertain whether a certain area has a higher than normal revenue
+- December 2011 only covers 9 days of data and is therefore not the must representable measure
+
+While 93% of the revenue comes from repeat customers, this only represents 65% of the overall customers and therefore 35% of customers only make one purchase. While converting single time customers into repeat/loyal customers is beneficial in the long run, this needs to be carefully considered. Focusing on, and spending money and time on customers that currently provide little value to the company may result in negative gains at the cost of alienating the existing significant revenue from repeat customers. Therefore, simple reminders via email or text to one time customers is a good starting point with more focused campaigns/targeted deals for only the highest spending one time customers
+
+
 
 ### Tools Used:
 - PostGres (SQL) 
@@ -75,18 +82,16 @@ FROM analysis_snapshot
 ```
 5.	Which RFM segments generate the most revenue?
 
+Champion customers provide by far the most revenue followed by loyal customers
+
+![My Image](Assets/Revenue%20by%20RFM%20Segment.png)
 
 6.	How many high-value customers are at risk?
 
+291 High-value customers are at risk
+![My Image](Assets/At%20Risk%20High-Value%20Customers.png)
 
-
-7.	What is our monthly customer retention rate?
-
-
-8.	Which acquisition cohorts retain the best?
-
-
-9.	Which products generate the most revenue?
+7.	Which products generate the most revenue?
 ```sql
 SELECT
     Description,
@@ -110,7 +115,7 @@ Top 10 products by revenue:
 
 ![My Image](Assets/Top%2010%20Products%20by%20Revenue.png)
 
-10.	How much revenue is lost through cancellations and returns?
+8.	How much revenue is lost through cancellations and returns?
 £611,342.09 of potential revenue lost in cancellations and returns
 ```sql
 SELECT 
