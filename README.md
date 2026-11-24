@@ -16,6 +16,10 @@ Autumn makes up the highest revenue for the year and highlights increasing spend
 ## Dataset
 https://archive.ics.uci.edu/dataset/502/online+retail+ii?
 
+Sales Dashboard: ![My Image](Assets/Revenue%20Dashboard.png)
+
+RFM and Customer Segment Dashboard: ![My Image](Assets/Customer%20Segment%20Dashboard.png)
+
 ### Columns Description:
 - InvoiceNo: 
      Invoice Number. A six digit number uniquely assigned to each transaction. If this code starts with letter 'C', it indicates a cancelled order
